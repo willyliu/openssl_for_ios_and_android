@@ -82,13 +82,8 @@ configure() {
   export NDK_TOOLCHAIN_BASENAME=${TOOLCHAIN_PATH}/${TOOL}
   export SYSROOT=${TOOLCHAIN_ROOT}/sysroot
   export CROSS_SYSROOT=$SYSROOT
-  if [ -z "${CLANG}" ]; then
-    export CC=${NDK_TOOLCHAIN_BASENAME}-gcc
-    export CXX=${NDK_TOOLCHAIN_BASENAME}-g++
-  else
-    export CC=${NDK_TOOLCHAIN_BASENAME}-clang
-    export CXX=${NDK_TOOLCHAIN_BASENAME}-clang++
-  fi;
+  export CC=${NDK_TOOLCHAIN_BASENAME}-clang
+  export CXX=${NDK_TOOLCHAIN_BASENAME}-clang++
   export LINK=${CXX}
   export LD=${NDK_TOOLCHAIN_BASENAME}-ld
   export AR=${NDK_TOOLCHAIN_BASENAME}-ar
