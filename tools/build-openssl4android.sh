@@ -36,12 +36,15 @@ configure_make() {
   if [[ $LIB_NAME != openssl-1.1.* ]]; then
     if [[ $ARCH == "android-armeabi" ]]; then
         ARCH="android-armv7"
-    elif [[ $ARCH == "android64" ]]; then 
+    elif [[ $ARCH == "android64" ]]; then
         ARCH="linux-x86_64 shared no-ssl2 no-ssl3 no-hw "
     elif [[ "$ARCH" == "android64-aarch64" ]]; then
         ARCH="android shared no-ssl2 no-ssl3 no-hw "
     fi
   fi
+
+  #removes the -mandroid flag so that clang can build
+  sed -e "s/\-mandroid//g" -i .backup Configurations/10-main.conf
 
   ./Configure $ARCH \
               --prefix=${LIB_DEST_DIR}/${ABI} \
