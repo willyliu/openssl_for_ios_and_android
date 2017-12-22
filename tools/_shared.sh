@@ -18,15 +18,16 @@ TOOLS_ROOT=`pwd`
 # So you can build openssl with android-16 then build cURL with android-21
 #
 if [ "${1}" == "cURL" ]; then
-    ANDROID_API=${ANDROID_API:-21}
+   ANDROID_API=${ANDROID_API:-21}
 else
-    ANDROID_API=${ANDROID_API:-16}
+   ANDROID_API=${ANDROID_API:-16}
 fi
-ARCHS=("android" "android-armeabi" "android-x86" "android-mips")
-ABIS=("armeabi" "armeabi-v7a" "x86" "mips")
-# ANDROID_API=${ANDROID_API:-21}
-# ARCHS=("android" "android-armeabi" "android64-aarch64" "android-x86" "android64" "android-mips" "android-mips64")
-# ABIS=("armeabi" "armeabi-v7a" "arm64-v8a" "x86" "x86_64" "mips" "mips64")
+#ARCHS=("android" "android-armeabi" "android-x86" "android-mips")
+#ABIS=("armeabi" "armeabi-v7a" "x86" "mips")
+#ANDROID_API=${ANDROID_API:-21}	# for curl
+# ANDROID_API=${ANDROID_API:-16}	# for openssl
+ARCHS=("android" "android-armeabi" "android64-aarch64" "android-x86" "android64" "android-mips" "android-mips64")
+ABIS=("armeabi" "armeabi-v7a" "arm64-v8a" "x86" "x86_64" "mips" "mips64")
 NDK=${ANDROID_NDK}
 
 configure() {
