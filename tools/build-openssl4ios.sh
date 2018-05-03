@@ -30,7 +30,8 @@ SDKS=("iphoneos" "iphoneos" "iphoneos" "iphonesimulator" "iphonesimulator")
 PLATFORMS=("iPhoneOS" "iPhoneOS" "iPhoneOS" "iPhoneSimulator" "iPhoneSimulator")
 DEVELOPER=`xcode-select -print-path`
 # If you can't compile with this version, please modify the version to it which on your mac.
-SDK_VERSION=""10.3""
+SDK_VERSION=""11.3""
+MIN_IOS_VERSION="8.0"
 LIB_NAME="openssl-1.1.0f"
 LIB_DEST_DIR="${pwd_path}/../output/ios/openssl-universal"
 HEADER_DEST_DIR="include"
@@ -55,7 +56,7 @@ configure_make()
    export CROSS_TOP="${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer"
    export CROSS_SDK="${PLATFORM}${SDK_VERSION}.sdk"
    export TOOLS="${DEVELOPER}"
-   export CC="${TOOLS}/usr/bin/gcc -arch ${ARCH}"
+   export CC="${TOOLS}/usr/bin/gcc -arch ${ARCH} -isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -fembed-bitcode -miphoneos-version-min=${MIN_IOS_VERSION} -mios-version-min=${MIN_IOS_VERSION} -DOPENSSL_NO_ASYNC"
 
    PREFIX_DIR="${pwd_path}/../output/ios/openssl-${ARCH}"
    if [ -d "${PREFIX_DIR}" ]; then
@@ -64,14 +65,13 @@ configure_make()
    mkdir -p "${PREFIX_DIR}"
 
    if [[ "${ARCH}" == "x86_64" ]]; then
-       ./Configure darwin64-x86_64-cc --prefix="${PREFIX_DIR}"
+       ./Configure darwin64-x86_64-cc no-async no-engine --prefix="${PREFIX_DIR}"
    elif [[ "${ARCH}" == "i386" ]]; then
-       ./Configure darwin-i386-cc --prefix="${PREFIX_DIR}"
+       ./Configure darwin-i386-cc no-async no-engine --prefix="${PREFIX_DIR}"
    else
-       ./Configure iphoneos-cross --prefix="${PREFIX_DIR}"
+       ./Configure iphoneos-cross no-async no-engine --prefix="${PREFIX_DIR}"
    fi
-   export CFLAGS="-isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK}"
-
+   
    make clean
    if make -j8
    then
