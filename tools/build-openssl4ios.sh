@@ -25,18 +25,20 @@ done
 pwd_path="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
  
 # Setup architectures, library name and other vars + cleanup from previous runs
-ARCHS=("arm64" "armv7s" "armv7" "i386" "x86_64")
-SDKS=("iphoneos" "iphoneos" "iphoneos" "iphonesimulator" "iphonesimulator")
-PLATFORMS=("iPhoneOS" "iPhoneOS" "iPhoneOS" "iPhoneSimulator" "iPhoneSimulator")
+# building arm64 will actually build arm64,armv7s,armv7
+ARCHS=("arm64" "i386" "x86_64")
+SDKS=("iphoneos" "iphonesimulator" "iphonesimulator")
+PLATFORMS=("iPhoneOS" "iPhoneSimulator" "iPhoneSimulator")
+
 DEVELOPER=`xcode-select -print-path`
 # If you can't compile with this version, please modify the version to it which on your mac.
-SDK_VERSION=""11.3""
+SDK_VERSION=""12.4""
 MIN_IOS_VERSION="8.0"
-LIB_NAME="openssl-1.1.0f"
+LIB_NAME="openssl-1.1.1c"
 LIB_DEST_DIR="${pwd_path}/../output/ios/openssl-universal"
 HEADER_DEST_DIR="include"
 rm -rf "${HEADER_DEST_DIR}" "${LIB_DEST_DIR}" "${LIB_NAME}"
- 
+
 # Unarchive library, then configure and make for specified architectures
 configure_make()
 {
@@ -53,10 +55,12 @@ configure_make()
        sed -ie "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!" "crypto/ui/ui_openssl.c"
    fi
 
+   patch -b -p1 < "${pwd_path}/openssl-1.1.1c.patch"
+
    export CROSS_TOP="${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer"
    export CROSS_SDK="${PLATFORM}${SDK_VERSION}.sdk"
    export TOOLS="${DEVELOPER}"
-   export CC="${TOOLS}/usr/bin/gcc -arch ${ARCH} -isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -fembed-bitcode -miphoneos-version-min=${MIN_IOS_VERSION} -mios-version-min=${MIN_IOS_VERSION} -DOPENSSL_NO_ASYNC"
+
 
    PREFIX_DIR="${pwd_path}/../output/ios/openssl-${ARCH}"
    if [ -d "${PREFIX_DIR}" ]; then
@@ -65,17 +69,34 @@ configure_make()
    mkdir -p "${PREFIX_DIR}"
 
    if [[ "${ARCH}" == "x86_64" ]]; then
-       ./Configure darwin64-x86_64-cc no-async no-engine --prefix="${PREFIX_DIR}"
+        export CC="${TOOLS}/usr/bin/gcc -arch ${ARCH} -isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -miphoneos-version-min=${MIN_IOS_VERSION} -mios-version-min=${MIN_IOS_VERSION} -DOPENSSL_NO_ASYNC"
+        ./Configure darwin64-x86_64-cc no-shared no-weak-ssl-ciphers no-asm no-async no-engine --prefix="${PREFIX_DIR}"
    elif [[ "${ARCH}" == "i386" ]]; then
-       ./Configure darwin-i386-cc no-async no-engine --prefix="${PREFIX_DIR}"
+        export CC="${TOOLS}/usr/bin/gcc -arch ${ARCH} -isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -miphoneos-version-min=${MIN_IOS_VERSION} -mios-version-min=${MIN_IOS_VERSION} -DOPENSSL_NO_ASYNC"
+        export LDFLAGS="-Wl,-no_compact_unwind"
+        ./Configure darwin-i386-cc no-shared no-weak-ssl-ciphers no-asm no-async no-engine --prefix="${PREFIX_DIR}"
    else
-       ./Configure iphoneos-cross no-async no-engine --prefix="${PREFIX_DIR}"
+        ./Configure iphoneos-cross no-shared no-weak-ssl-ciphers no-asm no-async no-engine --prefix="${PREFIX_DIR}"
+        unset CC
+        unset CFLAGS
+        unset LDFLAGS
+        OLD_LANG=$LANG
+        unset LANG
+        sed -i "" 's/CC=$(CROSS_COMPILE)cc/CC=clang/g' Makefile
+        sed -i "" "s:CFLAGS=-O3:CFLAGS=-O3 -arch arm64 -arch armv7 -arch armv7s -miphoneos-version-min=${MIN_IOS_VERSION} -mios-version-min=${MIN_IOS_VERSION} -DOPENSSL_NO_ASYNC -fembed-bitcode:g" Makefile
+        sed -i "" 's/MAKEDEPEND=$(CROSS_COMPILE)cc/MAKEDEPPROG=$(CC) -M/g' Makefile
+        export LANG=$OLD_LANG
+   fi
+
+   if [ ! -d ${CROSS_TOP}/SDKs/${CROSS_SDK} ]; then
+       echo "ERROR: iOS SDK version:'${SDK_VERSION}' incorrect, SDK in your system is:"
+       xcodebuild -showsdks | grep iOS
+       exit -1
    fi
    
    make clean
    if make -j8
    then
-       # make install;
        make install_sw;
        make install_ssldirs;
        popd;
@@ -101,4 +122,4 @@ create_lib()
 mkdir "${LIB_DEST_DIR}";
 create_lib "libcrypto.a" "${LIB_DEST_DIR}/libcrypto.a"
 create_lib "libssl.a" "${LIB_DEST_DIR}/libssl.a"
- 
+lipo -info "${LIB_DEST_DIR}/libcrypto.a" "${LIB_DEST_DIR}/libssl.a"

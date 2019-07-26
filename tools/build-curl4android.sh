@@ -20,7 +20,7 @@ source ./_shared.sh cURL
 
 # Setup architectures, library name and other vars + cleanup from previous runs
 TOOLS_ROOT=`pwd`
-LIB_NAME="curl-7.54.1"
+LIB_NAME="curl-7.65.1"
 LIB_DEST_DIR=${TOOLS_ROOT}/libs
 [ -f ${LIB_NAME}.tar.gz ] || wget https://curl.haxx.se/download/${LIB_NAME}.tar.gz
 # Unarchive library, then configure and make for specified architectures
@@ -31,16 +31,15 @@ configure_make() {
   pushd "${LIB_NAME}";
 
   configure $*
-  # fix me
   cp ${TOOLS_ROOT}/../output/android/openssl-${ABI}/lib/libssl.a ${SYSROOT}/usr/lib
   cp ${TOOLS_ROOT}/../output/android/openssl-${ABI}/lib/libcrypto.a ${SYSROOT}/usr/lib
   cp -r ${TOOLS_ROOT}/../output/android/openssl-${ABI}/include/openssl ${SYSROOT}/usr/include
-
+  
   mkdir -p ${LIB_DEST_DIR}/${ABI}
   ./configure --prefix=${LIB_DEST_DIR}/${ABI} \
               --with-sysroot=${SYSROOT} \
               --host=${TOOL} \
-              --with-ssl=/usr \
+              --with-ssl=${SYSROOT}/usr/ \
               --enable-ipv6 \
               --enable-static \
               --enable-threaded-resolver \
