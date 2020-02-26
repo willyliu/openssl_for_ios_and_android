@@ -70,13 +70,13 @@ configure_make()
 
    if [[ "${ARCH}" == "x86_64" ]]; then
         export CC="${TOOLS}/usr/bin/gcc -arch ${ARCH} -isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -miphoneos-version-min=${MIN_IOS_VERSION} -mios-version-min=${MIN_IOS_VERSION} -DOPENSSL_NO_ASYNC"
-        ./Configure darwin64-x86_64-cc no-shared no-weak-ssl-ciphers no-asm no-async no-engine --debug --prefix="${PREFIX_DIR}"
+        ./Configure darwin64-x86_64-cc no-shared no-weak-ssl-ciphers no-asm no-async no-engine --prefix="${PREFIX_DIR}"
    elif [[ "${ARCH}" == "i386" ]]; then
         export CC="${TOOLS}/usr/bin/gcc -arch ${ARCH} -isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -miphoneos-version-min=${MIN_IOS_VERSION} -mios-version-min=${MIN_IOS_VERSION} -DOPENSSL_NO_ASYNC"
         export LDFLAGS="-Wl,-no_compact_unwind"
-        ./Configure darwin-i386-cc no-shared no-weak-ssl-ciphers no-asm no-async no-engine --debug --prefix="${PREFIX_DIR}"
+        ./Configure darwin-i386-cc no-shared no-weak-ssl-ciphers no-asm no-async no-engine --prefix="${PREFIX_DIR}"
    else
-        ./Configure ios-cross no-shared no-weak-ssl-ciphers no-asm no-async no-engine --debug --prefix="${PREFIX_DIR}"
+        ./Configure ios-cross no-shared no-weak-ssl-ciphers no-asm no-async no-engine --prefix="${PREFIX_DIR}"
         unset CC
         unset CFLAGS
         unset LDFLAGS
@@ -100,7 +100,8 @@ configure_make()
        rm -fr "${LIB_NAME}"
    fi
 }
-for ((i=0; i < ${#ARCHS[@]}; i++))
+# for ((i=0; i < ${#ARCHS[@]}; i++))
+for ((i=0; i < 1; i++))
 do
     if [[ $# -eq 0 || "$1" == "${ARCHS[i]}" ]]; then
         configure_make "${ARCHS[i]}" "${SDKS[i]}" "${PLATFORMS[i]}"
