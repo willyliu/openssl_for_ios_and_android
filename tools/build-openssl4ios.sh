@@ -32,7 +32,7 @@ PLATFORMS=("iPhoneOS" "iPhoneSimulator" "iPhoneSimulator")
 
 DEVELOPER=`xcode-select -print-path`
 # If you can't compile with this version, please modify the version to it which on your mac.
-SDK_VERSION=""12.4""
+SDK_VERSION=""13.2""
 MIN_IOS_VERSION="8.0"
 LIB_NAME="openssl-1.1.1c"
 LIB_DEST_DIR="${pwd_path}/../output/ios/openssl-universal"
@@ -70,22 +70,19 @@ configure_make()
 
    if [[ "${ARCH}" == "x86_64" ]]; then
         export CC="${TOOLS}/usr/bin/gcc -arch ${ARCH} -isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -miphoneos-version-min=${MIN_IOS_VERSION} -mios-version-min=${MIN_IOS_VERSION} -DOPENSSL_NO_ASYNC"
-        ./Configure darwin64-x86_64-cc no-shared no-weak-ssl-ciphers no-asm no-async no-engine --prefix="${PREFIX_DIR}"
+        ./Configure darwin64-x86_64-cc no-shared no-weak-ssl-ciphers no-asm no-async no-engine --debug --prefix="${PREFIX_DIR}"
    elif [[ "${ARCH}" == "i386" ]]; then
         export CC="${TOOLS}/usr/bin/gcc -arch ${ARCH} -isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -miphoneos-version-min=${MIN_IOS_VERSION} -mios-version-min=${MIN_IOS_VERSION} -DOPENSSL_NO_ASYNC"
         export LDFLAGS="-Wl,-no_compact_unwind"
-        ./Configure darwin-i386-cc no-shared no-weak-ssl-ciphers no-asm no-async no-engine --prefix="${PREFIX_DIR}"
+        ./Configure darwin-i386-cc no-shared no-weak-ssl-ciphers no-asm no-async no-engine --debug --prefix="${PREFIX_DIR}"
    else
-        ./Configure iphoneos-cross no-shared no-weak-ssl-ciphers no-asm no-async no-engine --prefix="${PREFIX_DIR}"
+        ./Configure ios-cross no-shared no-weak-ssl-ciphers no-asm no-async no-engine --debug --prefix="${PREFIX_DIR}"
         unset CC
         unset CFLAGS
         unset LDFLAGS
-        OLD_LANG=$LANG
-        unset LANG
         sed -i "" 's/CC=$(CROSS_COMPILE)cc/CC=clang/g' Makefile
         sed -i "" "s:CFLAGS=-O3:CFLAGS=-O3 -arch arm64 -arch armv7 -arch armv7s -miphoneos-version-min=${MIN_IOS_VERSION} -mios-version-min=${MIN_IOS_VERSION} -DOPENSSL_NO_ASYNC -fembed-bitcode:g" Makefile
         sed -i "" 's/MAKEDEPEND=$(CROSS_COMPILE)cc/MAKEDEPPROG=$(CC) -M/g' Makefile
-        export LANG=$OLD_LANG
    fi
 
    if [ ! -d ${CROSS_TOP}/SDKs/${CROSS_SDK} ]; then

@@ -27,19 +27,16 @@ Android OpenSSL 1.1.1a library [download here !!!](https://github.com/leenjewel/
 
 This a static library compile from openssl and cURL for iOS and Android.
 
- - ~~[openssl-1.0.2c.tar.gz](https://www.openssl.org/source/openssl-1.0.2c.tar.gz)~~
- - [openssl-1.1.0f.tar.gz](https://www.openssl.org/source/openssl-1.1.0f.tar.gz)
+ - [openssl-1.1.1c.tar.gz](https://www.openssl.org/source/openssl-1.1.1c.tar.gz) 
  - [https://github.com/openssl/openssl](https://github.com/openssl/openssl)
 
 ## cURL Version
 
- - ~~[curl-7.47.1.tar.gz](https://curl.haxx.se/download/curl-7.47.1.tar.gz)~~
  - [curl-7.53.1.tar.gz](https://curl.haxx.se/download/curl-7.53.1.tar.gz)
  - [https://github.com/curl/curl](https://github.com/curl/curl)
 
 ## Android NDK Version
 
- - ~~[android-ndk-r13b](https://dl.google.com/android/repository/android-ndk-r13b-darwin-x86_64.zip)~~
  - [android-ndk-r14b](https://dl.google.com/android/repository/android-ndk-r14b-darwin-x86_64.zip)
  - ~~android-ndk-r15 (**Do not try to build use 15 It will fail**)~~
 
@@ -59,7 +56,7 @@ Thanks for [https://stackoverflow.com/questions/52717228/how-to-compile-openssl-
 
 ### For iOS
 
-Copy `openssl-1.1.0f.tar.gz` to `tools` file folder and run
+Copy `openssl-1.1.0c.tar.gz` to `tools` file folder and run
 
 ```
 cd tools
